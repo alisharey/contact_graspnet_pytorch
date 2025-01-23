@@ -4,11 +4,11 @@ import argparse
 
 import torch
 import numpy as np
-from contact_graspnet_pytorch.contact_grasp_estimator import GraspEstimator
-from contact_graspnet_pytorch import config_utils
+from contact_grasp_estimator import GraspEstimator
+import config_utils
 
-from contact_graspnet_pytorch.visualization_utils_o3d import visualize_grasps, show_image
-from contact_graspnet_pytorch.checkpoints import CheckpointIO 
+from visualization_utils_o3d import visualize_grasps, show_image
+from checkpoints import CheckpointIO 
 from data import load_available_input_data
 
 def inference(global_config, 
@@ -56,8 +56,8 @@ def inference(global_config,
         pc_segments = {}
         segmap, rgb, depth, cam_K, pc_full, pc_colors = load_available_input_data(p, K=K)
         
-        if segmap is None and (local_regions or filter_grasps):
-            raise ValueError('Need segmentation map to extract local regions or filter grasps')
+        # if segmap is None and (local_regions or filter_grasps):
+        #     raise ValueError('Need segmentation map to extract local regions or filter grasps')
 
         if pc_full is None:
             print('Converting depth to point cloud(s)...')
@@ -80,6 +80,8 @@ def inference(global_config,
 
         # Visualize results          
         show_image(rgb, segmap)
+        print('Scores shape:', {k: v.shape for k, v in scores.items()})
+        print('Predicted grasps shape:', {k: v.shape for k, v in pred_grasps_cam.items()})
         visualize_grasps(pc_full, pred_grasps_cam, scores, plot_opencv_cam=True, pc_colors=pc_colors)
         
     if not glob.glob(input_paths):

@@ -142,7 +142,8 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
     print('Visualizing...')
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(full_pc)
-    pcd.colors = o3d.utility.Vector3dVector(pc_colors.astype(np.float64) / 255)
+    if  pc_colors is not None:
+        pcd.colors = o3d.utility.Vector3dVector(pc_colors.astype(np.float64) / 255)
 
     vis = o3d.visualization.Visualizer()
     vis.create_window()

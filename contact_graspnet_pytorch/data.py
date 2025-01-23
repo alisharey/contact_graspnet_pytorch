@@ -299,7 +299,7 @@ def load_available_input_data(p, K=None):
     :returns: All available data among segmap, rgb, depth, cam_K, pc_full, pc_colors
     """
     
-    segmap, rgb, depth, pc_full, pc_colors = None, None, None, None, None
+    segmap, rgb, depth, cam_K, pc_full, pc_colors = None, None, None, None, None, None
 
     if K is not None:
         if isinstance(K,str):
@@ -307,18 +307,23 @@ def load_available_input_data(p, K=None):
         cam_K = np.array(K).reshape(3,3)
 
     if '.np' in p:
+        print(f"p: {p}")
         data = np.load(p, allow_pickle=True)
         if '.npz' in p:
             keys = data.files
+           
         else:
             keys = []
             if len(data.shape) == 0:
                 data = data.item()
                 keys = data.keys()
             elif data.shape[-1] == 3:
+                print('xyz')
+                
                 pc_full = data
             else:
                 depth = data
+            print(f"keys: {keys}")    
 
         if 'depth' in keys:
             depth = data['depth']
@@ -332,7 +337,7 @@ def load_available_input_data(p, K=None):
                 rgb = data['rgb']
                 rgb = np.array(cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
         elif 'xyz' in keys:
-            pc_full = np.array(data['xyz']).reshape(-1,3)
+            pc_full = 2*np.array(data['xyz']).reshape(-1,3)
             if 'xyz_color' in keys:
                 pc_colors = data['xyz_color']
     elif '.png' in p:
@@ -345,6 +350,8 @@ def load_available_input_data(p, K=None):
             depth = np.array(Image.open(p))
     else:
         raise ValueError('{} is neither png nor npz/npy file'.format(p))
+    
+    
     
     return segmap, rgb, depth, cam_K, pc_full, pc_colors
 
